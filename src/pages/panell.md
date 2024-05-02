@@ -29,6 +29,24 @@ const weightedMean = (data) => {
   return total.totalWeight / total.totalCapacity;
 }
 
+const sparkbar = (max) => {
+  return x => htl.html`<div style="
+    background: "#DCDCDC";
+    width: 100%;
+    float: right;
+    box-sizing: border-box;
+    overflow: visible;
+    position: flex;"><div style="
+    background: ${colorScale(x)};
+    width: ${100 * x / max}%;
+    float: right;
+    padding-right: 3px;
+    box-sizing: border-box;
+    overflow: visible;
+    display: flex;
+    justify-content: end;">${x.toLocaleString("en")}`
+}
+
 const occlusionY = ({radius = 6.5, ...options} = {}) => Plot.initializer(options, (data, facets, { y: {value: Y}, text: {value: T} }, {y: sy}, dimensions, context) => {
   for (const index of facets) {
     const unique = new Set();
@@ -48,53 +66,61 @@ const occlusionY = ({radius = 6.5, ...options} = {}) => Plot.initializer(options
     for (const { y, node, i, visible } of nodes) Y[i] = !visible ? NaN : y;
   }
   return {data, facets, channels: {y: {value: Y}}};
-})
+});
+
+const colorScale = d3.scaleThreshold()
+  .domain([16, 25, 40, 60])
+  .range(["#b02418", "#ef8733", "#f7d05d","#7aa047","#577af7"])
 
 const apiCall = await fetch(
-  "https://analisi.transparenciacatalunya.cat/resource/gn9e-3qhr.json?$limit=33000"
-).then((response) => response.json())
-
-const sorted = apiCall.sort((a, b) => new Date(a.dia) - new Date(b.dia));
-const actual = [
-    ...new Map(sorted.map((d) => [d.estaci, d])).values()
-  ].map((d) => {
-    d.name = embassamentsShortNames[d.estaci];
-    d.capacity = (100 * d.volum_embassat) / d.percentatge_volum_embassat;
-    d.pct = +d.percentatge_volum_embassat;
-    d.level = +d.volum_embassat;
-    return d;
-  });
-
-const actualMean = +weightedMean(actual).toFixed(1);
+  "https://analisi.transparenciacatalunya.cat/resource/gn9e-3qhr.json?$limit=32877"
+).then((response) => response.json());
 
 const historic = apiCall.map((d) => {
   const name = embassamentsShortNames[d.estaci];
+  const capacity = (100 * d.volum_embassat) / d.percentatge_volum_embassat;
   const date = new Date(d.dia);
   const pct = +d.percentatge_volum_embassat;
   const level = +d.volum_embassat;
-  return { name, date, pct, level };
-});
-  
-const sortInput = Inputs.toggle({
-  label: "Ordenat per volum",
-  value: true,
-  width: 600
-})
-
-const sort = Generators.input(sortInput);
+  return { name, date, pct, level, capacity };
+}).sort( (a,b) => a.date - b.date);
 
 const historicDateSpan = [...new Set(historic.map(d => d.date))]
 const [startDate, latestDate] = d3.extent(historicDateSpan);
 const yearAgo = new Date();
 yearAgo.setFullYear(latestDate.getFullYear() - 1);
 
-const selected = "Foix"
+const actual = historic.filter(d => d.date >= latestDate);
+
+const actualMean = +weightedMean(actual).toFixed(1);
+  
+const sortInput = Inputs.toggle({
+  label: "Ordenat per volum",
+  value: true,
+  width: 600
+})
+const sort = Generators.input(sortInput);
 
 const selectInput = Inputs.select(Object.values(embassamentsShortNames), {
     label: "Selecciona un embassament"
   })
-
 const select = Generators.input(selectInput);
+
+const table = Inputs.table(historic, {
+  columns: ["name", "date", "pct", "level"],
+  header: {
+    name: "Embassament",
+    date: "Data de l'observació",
+    pct: "Volum embassat (%)",
+    level: "Volum embassat (hm³)"
+  },
+  format: {
+    pct: sparkbar(d3.max(historic, d => d.pct))
+  },
+  rows: 18,
+  sort: "date",
+  reverse: true
+})
 
 ```
 # Estat dels embassaments de Catalunya
@@ -223,7 +249,7 @@ ${resize((width) =>
   Plot.plot({
   width: width,
   height: 480,
-  marginRight: 120,
+  marginRight: width > 480 ? 120 : 0,
   y: { grid: true, label: "% volum embassat" },
   color: {
     domain: [16, 25, 40, 60],
@@ -255,6 +281,7 @@ ${resize((width) =>
         stroke: "none"
       })
     ),
+    width > 480 ?
     Plot.text(
       historic.filter((d) => d.date > yearAgo),
       occlusionY(
@@ -265,6 +292,22 @@ ${resize((width) =>
           text: "name",
           textAnchor: "start",
           dx: 6
+        })
+      )
+    )
+    :
+    Plot.text(
+      historic.filter((d) => d.date > yearAgo),
+      occlusionY(
+        Plot.selectLast({
+          x: "date",
+          y: "pct",
+          z: "name",
+          text: "name",
+          textAnchor: "end",
+          stroke: "#f3f3f3",
+          fill: "#000",
+          dx: -6
         })
       )
     )
@@ -284,7 +327,7 @@ ${resize((width) =>
     resize((width) =>
       Plot.plot({
   width: width,
-  height: width / 3,
+  height: width > 480 ? width / 3 : width,
   y: { grid: true, label: "% volum embassat" },
   color: {
     domain: [16, 25, 40, 60],
@@ -329,3 +372,8 @@ ${resize((width) =>
   }
   </div>
 </div>
+<div class="card" style="padding: 0;">
+${table}
+</div>
+
+<div class="small note">Aquest panell de dades reimagina la visualització de<a href="https://aca.gencat.cat/ca/laigua/consulta-de-dades/dades-obertes/visualitzacio-interactiva-dades/estat-embassaments/">l'Estat dels embassaments a Catalunya</a> de la Agència Catalana de l'Aigua, reutilitzant les <a href="https://analisi.transparenciacatalunya.cat/Medi-Ambient/Quantitat-d-aigua-als-embassaments-de-les-Conques-/gn9e-3qhr/about_data">dades obertes disponibles</a> al portal de Transparència.</div>
