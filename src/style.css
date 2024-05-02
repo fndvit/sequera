@@ -1,0 +1,27 @@
+@import url("observablehq:default.css");
+@import url("observablehq:theme-air.css");
+
+:root {
+  --sans-serif: Helvetica;
+  --semafor-blau:#577af7;
+  --semafor-verd:#7aa047;
+  --semafor-groc:#f7d05d;
+  --semafor-taronja:#ef8733;
+  --semafor-rosa:#f09793;
+  --semafor-vermell:#b02418;
+}
+
+h1, h2, h3, h4, h5, h6 { font-family: var(--sans-serif);}
+
+.card h1, .card h2 { font-weight: 600;}
+
+.card h1 { font-size: 1.5rem;}
+.card h2 { font-size: 1.2rem;}
+.card h3 { font-size: 1rem;}
+.card h4 { font-size: .85rem;}
+
+.grafic { padding-top: 1rem;}
+
+#observablehq-main, #observablehq-header, #observablehq-footer {
+  max-width: none;
+}
