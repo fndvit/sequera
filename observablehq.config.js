@@ -53,7 +53,7 @@ export default {
         </a>
       </b>
       <span style="display: flex; align-items: baseline; gap: 0.5rem; font-size: 13px;">
-        <a target="_blank" href="https://github.com/observablehq/framework/tree/main/examples/plot"><span>Col·labora al repositori</span></a>
+        <a target="_blank" href="https://github.com/fndvit/sequera"><span>Col·labora al repositori</span></a>
       </span>
     </div>
   </div>`,
