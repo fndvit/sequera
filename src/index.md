@@ -1,115 +1,402 @@
 ---
+title: Panell de dades dels embassaments a Catalunya
 toc: false
 ---
 
-<style>
-
-.hero {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-family: var(--sans-serif);
-  margin: 4rem 0 8rem;
-  text-wrap: balance;
-  text-align: center;
-}
-
-.hero h1 {
-  margin: 2rem 0;
-  max-width: none;
-  font-size: 14vw;
-  font-weight: 900;
-  line-height: 1;
-  background: linear-gradient(30deg, var(--theme-foreground-focus), currentColor);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.hero h2 {
-  margin: 0;
-  max-width: 34em;
-  font-size: 20px;
-  font-style: initial;
-  font-weight: 500;
-  line-height: 1.5;
-  color: var(--theme-foreground-muted);
-}
-
-@media (min-width: 640px) {
-  .hero h1 {
-    font-size: 90px;
-  }
-}
-
-</style>
-
-<div class="hero">
-  <h1>Hello, Observable Framework</h1>
-  <h2>Welcome to your new project! Edit&nbsp;<code style="font-size: 90%;">src/index.md</code> to change this page.</h2>
-  <a href="https://observablehq.com/framework/getting-started">Get started<span style="display: inline-block; margin-left: 0.25rem;">↗︎</span></a>
-</div>
-
-<div class="grid grid-cols-2" style="grid-auto-rows: 504px;">
-  <div class="card">${
-    resize((width) => Plot.plot({
-      title: "Your awesomeness over time 🚀",
-      subtitle: "Up and to the right!",
-      width,
-      y: {grid: true, label: "Awesomeness"},
-      marks: [
-        Plot.ruleY([0]),
-        Plot.lineY(aapl, {x: "Date", y: "Close", tip: true})
-      ]
-    }))
-  }</div>
-  <div class="card">${
-    resize((width) => Plot.plot({
-      title: "How big are penguins, anyway? 🐧",
-      width,
-      grid: true,
-      x: {label: "Body mass (g)"},
-      y: {label: "Flipper length (mm)"},
-      color: {legend: true},
-      marks: [
-        Plot.linearRegressionY(penguins, {x: "body_mass_g", y: "flipper_length_mm", stroke: "species"}),
-        Plot.dot(penguins, {x: "body_mass_g", y: "flipper_length_mm", stroke: "species", tip: true})
-      ]
-    }))
-  }</div>
-</div>
-
 ```js
-const aapl = FileAttachment("aapl.csv").csv({typed: true});
-const penguins = FileAttachment("penguins.csv").csv({typed: true});
+import chroma from "chroma-js";
+
+const embassamentsShortNames = ({
+    'Embassament de Darnius Boadella (Darnius)': 'Darnius Boadella',
+    'Embassament de Foix (Castellet i la Gornal)': 'Foix',
+    'Embassament de Sau (Vilanova de Sau)': 'Sau',
+    'Embassament de Siurana (Cornudella de Montsant)': 'Siurana',
+    'Embassament de Sant Ponç (Clariana de Cardener)': 'Sant Ponç',
+    'Embassament de Susqueda (Osor)': 'Susqueda',
+    'Embassament de Riudecanyes': 'Riudecanyes',
+    'Embassament de la Llosa del Cavall (Navès)': 'La Llosa del Cavall',
+    'Embassament de la Baells (Cercs)': 'La Baells'
+})
+
+const weightedMean = (data) => {
+  const total = data.reduce(
+    (acc, item) => {
+      acc.totalWeight += item.pct * item.capacity;
+      acc.totalCapacity += item.capacity;
+      return acc;
+    },
+    { totalWeight: 0, totalCapacity: 0 }
+  );
+
+  return total.totalWeight / total.totalCapacity;
+}
+
+const sparkbar = (max) => {
+  return x => htl.html`<div style="
+    background: ${colorScale(x)};
+    border:.8px solid ${chroma(colorScale(x)).darken(1).hex()};
+    width: ${100 * x / max}%;
+    float: right;
+    padding-right: 3px;
+    box-sizing: border-box;
+    overflow: visible;
+    display: flex;
+    justify-content: end;">${x.toLocaleString("es")}`
+}
+
+const occlusionY = ({radius = 6.5, ...options} = {}) => Plot.initializer(options, (data, facets, { y: {value: Y}, text: {value: T} }, {y: sy}, dimensions, context) => {
+  for (const index of facets) {
+    const unique = new Set();
+    const nodes = Array.from(index, (i) => ({
+      fx: 0,
+      y: sy(Y[i]),
+      visible: unique.has(T[i]) // remove duplicate labels
+        ? false
+        : !!unique.add(T[i]),
+      i
+    }));
+    d3.forceSimulation(nodes.filter((d) => d.visible))
+      .force("y", d3.forceY(({y}) => y)) // gravitate towards the original y
+      .force("collide", d3.forceCollide().radius(radius)) // collide
+      .stop()
+      .tick(20);
+    for (const { y, node, i, visible } of nodes) Y[i] = !visible ? NaN : y;
+  }
+  return {data, facets, channels: {y: {value: Y}}};
+});
+
+const colorScale = d3.scaleThreshold()
+  .domain([16, 25, 40, 60])
+  .range(['#2f61e2', '#4f82de', '#70a3da', '#90c4d6', '#b1e5d1'])
+
+const apiCall = await fetch(
+  "https://analisi.transparenciacatalunya.cat/resource/gn9e-3qhr.json?$limit=32877"
+).then((response) => response.json());
+
+const historic = apiCall.map((d) => {
+  const name = embassamentsShortNames[d.estaci];
+  const capacity = (100 * d.volum_embassat) / d.percentatge_volum_embassat;
+  const date = new Date(d.dia);
+  const pct = +d.percentatge_volum_embassat;
+  const level = +d.volum_embassat;
+  return { name, date, pct, level, capacity };
+}).sort( (a,b) => a.date - b.date);
+
+const historicDateSpan = [...new Set(historic.map(d => d.date))]
+const [startDate, latestDate] = d3.extent(historicDateSpan);
+const yearAgo = new Date();
+yearAgo.setFullYear(latestDate.getFullYear() - 1);
+
+const actual = historic.filter(d => d.date >= latestDate);
+
+const actualMean = +weightedMean(actual).toFixed(1);
+  
+const sortInput = Inputs.toggle({
+  label: "Ordenat per volum",
+  value: true,
+  width: 600
+})
+const sort = Generators.input(sortInput);
+
+const selectInput = Inputs.select(Object.values(embassamentsShortNames), {
+    label: "Selecciona un embassament"
+  })
+const select = Generators.input(selectInput);
+
+const table = Inputs.table(historic, {
+  columns: ["name", "date", "pct", "level"],
+  header: {
+    name: "Embassament",
+    date: "Data de l'observació",
+    pct: "Volum embassat (%)",
+    level: "Volum embassat (hm³)"
+  },
+  format: {
+    pct: sparkbar(d3.max(historic, d => d.pct)),
+    level: x => x.toLocaleString('es')
+  },
+  rows: 18,
+  sort: "date",
+  reverse: true
+})
+
 ```
-
----
-
-## Next steps
-
-Here are some ideas of things you could try…
+# Estat dels embassaments de Catalunya
 
 <div class="grid grid-cols-4">
-  <div class="card">
-    Chart your own data using <a href="https://observablehq.com/framework/lib/plot"><code>Plot</code></a> and <a href="https://observablehq.com/framework/files"><code>FileAttachment</code></a>. Make it responsive using <a href="https://observablehq.com/framework/display#responsive-display"><code>resize</code></a>.
+  <div class="card grid-colspan-2">
+  <h2>Les reserves d'aigua als embassaments estàn al ${actualMean}%</h2>
+    <h3>Dades actualitzades a ${d3.timeFormat("%x")(latestDate)} per embassaments amb capacitat superior a 2hm³</h3>
+    <figure class="grafic" style="max-width: none;">
+      ${resize((width) =>
+    Plot.plot({
+  width,
+  height: 480,
+  marginRight: width > 480 ? 120 : 0,
+  x: { domain: [0, 100], label: "% volum embassat" },
+  y: { label: "Capacitat in hm³" },
+  color: {
+    domain: [16, 25, 40, 60],
+    range: ['#2f61e2', '#4f82de', '#70a3da', '#90c4d6', '#b1e5d1'],
+    type: "threshold",
+    label: "% volum embassat",
+    legend: true
+  },
+  marks: [
+    () => htl.svg`<defs>
+      <pattern
+        id="diagonal-stripe"
+        width="100px"
+        height="5px"
+        patternUnits="userSpaceOnUse"
+        patternContentUnits="userSpaceOnUse"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        patternTransform="rotate(-45)"
+      >
+        <line
+          x1="0"
+          x2="100"
+          y1="30"
+          y2="30"
+          stroke-width="40"
+          style="stroke: #eee"
+        />
+      </pattern>
+    </defs>`,
+    Plot.rectX(
+      actual,
+      Plot.stackY({
+        y: "capacity",
+        order: sort ? "pct" : "capacity",
+        x2: 100,
+        fill: "url(#diagonal-stripe)",
+        stroke: "#e0e0e0"
+      })
+    ),
+    Plot.rectX(
+      actual,
+      Plot.stackY({
+        y: "capacity",
+        order: sort ? "pct" : "capacity",
+        x2: "pct",
+        fill: "pct",
+        stroke: d => chroma(colorScale(d.pct)).darken(1).hex(),
+        strokeWidth: .6,
+        title: (d) => `${d.name}\n${d.pct}%`,
+        insetTop: 0.2,
+        insetBottom: 0.2,
+        tip: true
+      })
+    ),
+    width > 480 ? Plot.text(
+      actual,
+      occlusionY(
+        Plot.stackY({
+          y: "capacity",
+          order: sort ? "pct" : "capacity",
+          x: 100,
+          text: "name",
+          textAnchor: "start",
+          insetTop: 0.2,
+          insetBottom: 0.2,
+          dx: 16
+        })
+      )
+    )
+    : 
+    Plot.text(
+      actual,
+      occlusionY(
+        Plot.stackY({
+          y: "capacity",
+          order: sort ? "pct" : "capacity",
+          x: 100,
+          text: "name",
+          textAnchor: "end",
+          insetTop: 0.2,
+          insetBottom: 0.2,
+          dx: -4
+        })
+      )
+    )
+    ,
+    Plot.ruleX([actualMean], {strokeWidth: 2}),
+    Plot.text(
+      [actualMean],
+      {
+          y: 650,
+          x: d => d,
+          text: d => `${d}%`,
+          fontSize: 20,
+          fontWeight: "bold",
+          textAnchor: "middle",
+          fill: "#000",
+          stroke:"#f0f0f0",
+        })
+  ]
+})
+  )}
+    </figure>
+    ${sortInput}
+
   </div>
-  <div class="card">
-    Create a <a href="https://observablehq.com/framework/project-structure">new page</a> by adding a Markdown file (<code>whatever.md</code>) to the <code>src</code> folder.
+  <div class="card grid-colspan-2" style="min-height: 480px">
+  <h2>Change in demand by balancing authority</h2>
+    <h3>Evolució de les reserves en l'últim any</h3>
+    <figure class="grafic" style="max-width: none;">
+${resize((width) =>
+  Plot.plot({
+  width: width,
+  height: 480,
+  marginRight: width > 480 ? 120 : 0,
+  y: { grid: true, label: "% volum embassat" },
+  color: {
+    domain: [16, 25, 40, 60],
+    range: ['#2f61e2', '#4f82de', '#70a3da', '#90c4d6', '#b1e5d1'],
+    type: "threshold",
+    label: "% volum embassat",
+    legend: true
+  },
+  style: "overflow: visible;",
+  marks: [
+    Plot.lineY(
+      historic.filter((d) => d.date > yearAgo),
+      {
+        x: "date",
+        y: "pct",
+        z: "name",
+        stroke: d => chroma(colorScale(d.pct)).darken(1).hex(),
+        strokeWidth: 3.6
+      }
+    ),
+    Plot.lineY(
+      historic.filter((d) => d.date > yearAgo),
+      {
+        x: "date",
+        y: "pct",
+        z: "name",
+        stroke: "pct",
+        strokeWidth: 2,
+        tip: true
+      }
+    ),
+    Plot.dot(
+      historic.filter((d) => d.date > yearAgo),
+      Plot.selectLast({
+        r: 3,
+        x: "date",
+        y: "pct",
+        z: "name",
+        fill: "pct",
+        stroke: "none",
+        stroke: d => chroma(colorScale(d.pct)).darken(1).hex(),
+        strokeWidth: .8,
+      })
+    ),
+    width > 480 ?
+    Plot.text(
+      historic.filter((d) => d.date > yearAgo),
+      occlusionY(
+        Plot.selectLast({
+          x: "date",
+          y: "pct",
+          z: "name",
+          text: "name",
+          textAnchor: "start",
+          dx: 6
+        })
+      )
+    )
+    :
+    Plot.text(
+      historic.filter((d) => d.date > yearAgo),
+      occlusionY(
+        Plot.selectLast({
+          x: "date",
+          y: "pct",
+          z: "name",
+          text: "name",
+          textAnchor: "end",
+          stroke: "#f3f3f3",
+          fill: "#000",
+          dx: -6
+        })
+      )
+    )
+  ]
+})
+)}
+</figure>
+</div>
+</div>
+
+<div class="grid grid-cols-4">
+  <div class="card grid-colspan-1">
+  ${selectInput}
   </div>
-  <div class="card">
-    Add a drop-down menu using <a href="https://observablehq.com/framework/inputs/select"><code>Inputs.select</code></a> and use it to filter the data shown in a chart.
-  </div>
-  <div class="card">
-    Write a <a href="https://observablehq.com/framework/loaders">data loader</a> that queries a local database or API, generating a data snapshot on build.
-  </div>
-  <div class="card">
-    Import a <a href="https://observablehq.com/framework/imports">recommended library</a> from npm, such as <a href="https://observablehq.com/framework/lib/leaflet">Leaflet</a>, <a href="https://observablehq.com/framework/lib/dot">GraphViz</a>, <a href="https://observablehq.com/framework/lib/tex">TeX</a>, or <a href="https://observablehq.com/framework/lib/duckdb">DuckDB</a>.
-  </div>
-  <div class="card">
-    Ask for help, or share your work or ideas, on the <a href="https://talk.observablehq.com/">Observable forum</a>.
-  </div>
-  <div class="card">
-    Visit <a href="https://github.com/observablehq/framework">Framework on GitHub</a> and give us a star. Or file an issue if you’ve found a bug!
+  <div class="card grid-colspan-3">
+  ${
+    resize((width) =>
+      Plot.plot({
+  width: width,
+  height: width > 480 ? width / 3 : width,
+  y: { grid: true, label: "% volum embassat" },
+  color: {
+    domain: [16, 25, 40, 60],
+    range: ['#2f61e2', '#4f82de', '#70a3da', '#90c4d6', '#b1e5d1'],
+    type: "threshold"
+  },
+  style: "overflow: visible;",
+  marks: [
+    Plot.lineY(
+      historic.filter((d) => d.name === select),
+      {
+        x: "date",
+        y: "pct",
+        z: "name",
+        stroke: "#BDBDBD"
+      }
+    ),
+    Plot.lineY(
+      historic.filter((d) => d.name === select),
+      Plot.windowY(365, {
+        x: "date",
+        y: "pct",
+        z: "name",
+        stroke: "#000",
+        strokeDasharray: [2,4]
+      })
+    ),
+    Plot.lineY(
+      historic.filter((d) => d.name === select),
+      Plot.windowY(28, {
+        x: "date",
+        y: "pct",
+        z: "name",
+        strokeWidth: 3.6,
+        stroke: d => chroma(colorScale(d.pct)).darken(1).hex(),
+      })
+    ),
+    Plot.lineY(
+      historic.filter((d) => d.name === select),
+      Plot.windowY(28, {
+        x: "date",
+        y: "pct",
+        z: "name",
+        strokeWidth: 2.4,
+        stroke: "pct",
+        tip: true
+      })
+    )
+  ]
+})
+    )
+  }
   </div>
 </div>
+<div class="card" style="padding: 0;">
+${table}
+</div>
+
+<div class="small note">Aquest panell de dades reimagina la visualització de<a href="https://aca.gencat.cat/ca/laigua/consulta-de-dades/dades-obertes/visualitzacio-interactiva-dades/estat-embassaments/">l'Estat dels embassaments a Catalunya</a> de la Agència Catalana de l'Aigua, reutilitzant les <a href="https://analisi.transparenciacatalunya.cat/Medi-Ambient/Quantitat-d-aigua-als-embassaments-de-les-Conques-/gn9e-3qhr/about_data">dades obertes disponibles</a> al portal de Transparència.</div>
