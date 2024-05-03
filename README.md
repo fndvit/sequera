@@ -1,53 +1,67 @@
 # Visualització de la sequera a Catalunya
 
-This is an [Observable Framework](https://observablehq.com/framework) project. To start the local preview server, run:
+Aquest panell de dades reimagina la visualització de [l'Estat dels embassaments a Catalunya](https://aca.gencat.cat/ca/laigua/consulta-de-dades/dades-obertes/visualitzacio-interactiva-dades/estat-embassaments/) de la Agència Catalana de l'Aigua, reutilitzant les [dades obertes disponibles](https://analisi.transparenciacatalunya.cat/Medi-Ambient/Quantitat-d-aigua-als-embassaments-de-les-Conques-/gn9e-3qhr/about_data) al portal de Transparència de la Generalitat de Catalunya.
+
+L'objectiu d'aquest exercici és millorar la visualització existent i destacar la facilitat d'ús del [Observable Framework](https://observablehq.com/framework), una eina que ensenyem al mòdul de Visualització de la Informació del [Màster en Ciència de Dades a la Universitat de Girona](https://www.udg.edu/en/masters-en-tecnologia/ciencia-de-dades).
+
+Tenim un munt de funcionalitats en marxa, entre elles:
+
+- Incorporar dades del CHE (un dels [workshops](https://drought-workshop.vercel.app/) del máster propi en Visual Tools to Empower Citizens va aconseguir aixó)
+- Un mapa com el del [visor de la sequera](https://aplicacions.aca.gencat.cat/visseq/estat-actual) (les [dades](https://analisi.transparenciacatalunya.cat/Medi-Ambient/Estat-de-sequera-per-unitats-d-explotaci-i-municip/i5n8-43cw/about_data) al portal de Transparència tenen un desfàs de setmanes i [aquestes altres](https://aca.gencat.cat/ca/laigua/consulta-de-dades/dades-obertes/dades-obertes-temps-real/) necessiten càlculs geoespacials)
+- Un informe diari com el que proporciona la [Agència Catalana de l'Aigua](https://info.aca.gencat.cat/ca/aca/informacio/informesdwh/dades_embassaments_ca.pdf)
+
+Fes-nos saber si vols col·laborar.
+
+## Com iniciar el projecte
+
+Aquest és un projecte del [Observable Framework](https://observablehq.com/framework). Per iniciar el servidor de previsualització local, executa:
 
 ```
 npm run dev
 ```
 
-Then visit <http://localhost:3000> to preview your project.
+Després visita <http://localhost:3000> per previsualitzar el teu projecte.
 
-For more, see <https://observablehq.com/framework/getting-started>.
+Per a més informació, consulta <https://observablehq.com/framework/getting-started>.
 
-## Project structure
+## Estructura del projecte
 
-A typical Framework project looks like this:
+Un projecte típic del Marc Observable es veu així:
 
 ```ini
 .
 ├─ src
 │  ├─ components
-│  │  └─ timeline.js           # an importable module
+│  │  └─ timeline.js           # un mòdul importable
 │  ├─ data
-│  │  ├─ launches.csv.js       # a data loader
-│  │  └─ events.json           # a static data file
-│  ├─ example-dashboard.md     # a page
-│  ├─ example-report.md        # another page
-│  └─ index.md                 # the home page
+│  │  ├─ launches.csv.js       # un carregador de dades
+│  │  └─ events.json           # un fitxer de dades estàtic
+│  ├─ example-dashboard.md     # una pàgina
+│  ├─ example-report.md        # una altra pàgina
+│  └─ index.md                 # la pàgina principal
 ├─ .gitignore
-├─ observablehq.config.js      # the project config file
+├─ observablehq.config.js      # el fitxer de configuració del projecte
 ├─ package.json
 └─ README.md
 ```
 
-**`src`** - This is the “source root” — where your source files live. Pages go here. Each page is a Markdown file. Observable Framework uses [file-based routing](https://observablehq.com/framework/routing), which means that the name of the file controls where the page is served. You can create as many pages as you like. Use folders to organize your pages.
+**`src`** - Aquesta és l'"arrel de fonts" — on viuen els teus fitxers font. Les pàgines van aquí. Cada pàgina és un fitxer Markdown. El Marc Observable utilitza [encaminament basat en fitxers](https://observablehq.com/framework/routing), la qual cosa significa que el nom del fitxer controla on es serveix la pàgina. Pots crear tantes pàgines com vulguis. Utilitza carpetes per organitzar les teves pàgines.
 
-**`src/index.md`** - This is the home page for your site. You can have as many additional pages as you’d like, but you should always have a home page, too.
+**`src/index.md`** - Aquesta és la pàgina principal del teu lloc. Pots tenir tantes pàgines addicionals com vulguis, però sempre hauries de tenir també una pàgina principal.
 
-**`src/data`** - You can put [data loaders](https://observablehq.com/framework/loaders) or static data files anywhere in your source root, but we recommend putting them here.
+**`src/data`** - Pots posar [carregadors de dades](https://observablehq.com/framework/loaders) o fitxers de dades estàtics en qualsevol lloc de la teva arrel de fonts, però recomanem posar-los aquí.
 
-**`src/components`** - You can put shared [JavaScript modules](https://observablehq.com/framework/javascript/imports) anywhere in your source root, but we recommend putting them here. This helps you pull code out of Markdown files and into JavaScript modules, making it easier to reuse code across pages, write tests and run linters, and even share code with vanilla web applications.
+**`src/components`** - Pots posar mòduls [JavaScript compartits](https://observablehq.com/framework/javascript/imports) en qualsevol lloc de la teva arrel de fonts, però recomanem posar-los aquí. Això t'ajuda a extreure codi dels fitxers Markdown i posar-lo en mòduls JavaScript, facilitant la reutilització del codi a través de les pàgines, escriure proves, executar linters, i fins i tot compartir codi amb aplicacions web vanilla.
 
-**`observablehq.config.js`** - This is the [project configuration](https://observablehq.com/framework/config) file, such as the pages and sections in the sidebar navigation, and the project’s title.
+**`observablehq.config.js`** - Aquest és el fitxer de [configuració del projecte](https://observablehq.com/framework/config), com ara les pàgines i seccions en la navegació lateral, i el títol del projecte.
 
-## Command reference
+## Referència de comandes
 
-| Command           | Description                                              |
-| ----------------- | -------------------------------------------------------- |
-| `npm install`            | Install or reinstall dependencies                        |
-| `npm run dev`        | Start local preview server                               |
-| `npm run build`      | Build your static site, generating `./dist`              |
-| `npm run deploy`     | Deploy your project to Observable                        |
-| `npm run clean`      | Clear the local data loader cache                        |
-| `npm run observable` | Run commands like `observable help`                      |
+| Comanda              | Descripció                                                |
+| ------------------- | --------------------------------------------------------- |
+| `npm install`       | Instal·la o reinstal·la dependències                      |
+| `npm run dev`       | Inicia el servidor de previsualització local              |
+| `npm run build`     | Construeix el teu lloc estàtic, generant `./dist`         |
+| `npm run deploy`    | Desplega el teu projecte a Observable                      |
+| `npm run clean`     | Neteja la memòria cau del carregador de dades local       |
+| `npm run observable`| Executa comandes com `observable help`                    |
