@@ -6,14 +6,14 @@ Aquest panell de dades reimagina la visualització de [l'Estat dels embassaments
 
 L'objectiu d'aquest exercici és millorar la visualització existent i destacar la facilitat d'ús del [Observable Framework](https://observablehq.com/framework), una eina que ensenyem al mòdul de Visualització de la Informació del [Màster en Ciència de Dades a la Universitat de Girona](https://www.udg.edu/en/masters-en-tecnologia/ciencia-de-dades).
 
-## To Do
+## To do
 Tenim un munt de funcionalitats en marxa, entre elles:
 
 - [ ] Incorporar dades de la Confederació Hidrogràfica de l'Ebre (un dels [workshops](https://drought-workshop.vercel.app/) del Màster propi en Visual Tools to Empower Citizens va aconseguir aixó)
 - [ ] Un mapa com el del [visor de la sequera](https://aplicacions.aca.gencat.cat/visseq/estat-actual) (les [dades](https://analisi.transparenciacatalunya.cat/Medi-Ambient/Estat-de-sequera-per-unitats-d-explotaci-i-municip/i5n8-43cw/about_data) al portal de Transparència tenen un desfàs de setmanes i [les dades en temps real](https://aca.gencat.cat/ca/laigua/consulta-de-dades/dades-obertes/dades-obertes-temps-real/) necessiten càlculs geoespacials)
 - [ ] Un informe diari com el que proporciona la [Agència Catalana de l'Aigua](https://info.aca.gencat.cat/ca/aca/informacio/informesdwh/dades_embassaments_ca.pdf)
 
-Si [vols col·laborar]→(/CONTRIBUTING.md).
+Si [vols col·laborar](/CONTRIBUTING.md).
 
 ---
 
