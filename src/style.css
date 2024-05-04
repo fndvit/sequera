@@ -29,11 +29,21 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
 }
 
+main h2 {
+  font-style: normal;
+  font-weight: 500;
+  color: var(--theme-foreground-muted);
+}
+
 .card h1, .card h2 { font-weight: 600;}
 .card h3, li, label { font-weight: 500;}
 
 .card h1 { font-size: 1.5rem;}
-.card h2 { font-size: 1.2rem;}
+.card h2 { 
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--theme-foreground);
+}
 .card h3 { font-size: 1rem;}
 .card h4 { font-size: .85rem;}
 
@@ -42,3 +52,19 @@ h1, h2, h3, h4, h5, h6 {
 #observablehq-main, #observablehq-header, #observablehq-footer {
   max-width: none;
 }
+
+.notes {
+  font-family: var(--sans-serif);
+  font-size: .85rem;
+  color: var(--theme-foreground-muted);
+  padding-top:2rem;
+}
+
+.legend {
+  display: inline-block;
+  width: 1rem;
+  margin: 0 .3rem .25rem 1rem;
+}
+.daily { border-top: 1.5px #BDBDBD solid; }
+.monthly { border-top: 3.2px #4f82de solid; }
+.yearly { border-top: 1.5px #000 dashed; }

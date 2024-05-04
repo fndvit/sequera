@@ -6,6 +6,19 @@ toc: false
 ```js
 import chroma from "chroma-js";
 
+const catalanLocale = {
+  dateTime: "%A, %e de %B de %Y, %X",
+  date: "%e de %B de %Y",
+  time: "%H:%M:%S",
+  periods: ["AM", "PM"],
+  days: ["diumenge", "dilluns", "dimarts", "dimecres", "dijous", "divendres", "dissabte"],
+  shortDays: ["dg.", "dl.", "dt.", "dc.", "dj.", "dv.", "ds."],
+  months: ["gener", "febrer", "març", "abril", "maig", "juny", "juliol", "agost", "setembre", "octubre", "novembre", "desembre"],
+  shortMonths: ["gen.", "feb.", "març", "abr.", "mai.", "jun.", "jul.", "ag.", "set.", "oct.", "nov.", "des."]
+};
+
+const locale = d3.timeFormatDefaultLocale(catalanLocale);
+
 const embassamentsShortNames = ({
     'Embassament de Darnius Boadella (Darnius)': 'Darnius Boadella',
     'Embassament de Foix (Castellet i la Gornal)': 'Foix',
@@ -16,7 +29,7 @@ const embassamentsShortNames = ({
     'Embassament de Riudecanyes': 'Riudecanyes',
     'Embassament de la Llosa del Cavall (Navès)': 'La Llosa del Cavall',
     'Embassament de la Baells (Cercs)': 'La Baells'
-})
+});
 
 const weightedMean = (data) => {
   const total = data.reduce(
@@ -67,7 +80,21 @@ const occlusionY = ({radius = 6.5, ...options} = {}) => Plot.initializer(options
 
 const colorScale = d3.scaleThreshold()
   .domain([16, 25, 40, 60])
-  .range(['#2f61e2', '#4f82de', '#70a3da', '#90c4d6', '#b1e5d1'])
+  .range(['#2f61e2', '#4f82de', '#70a3da', '#90c4d6', '#b1e5d1']);
+
+const dateFormat = d3.timeFormat("%x");
+
+const sortInput = Inputs.toggle({
+  label: "Ordenat per volum",
+  value: true,
+  width: 600
+})
+const sort = Generators.input(sortInput);
+
+const selectInput = Inputs.select(Object.values(embassamentsShortNames), {
+    label: "Selecciona un embassament"
+  })
+const select = Generators.input(selectInput);
 
 const apiCall = await fetch(
   "https://analisi.transparenciacatalunya.cat/resource/gn9e-3qhr.json?$limit=32877"
@@ -88,20 +115,7 @@ const yearAgo = new Date();
 yearAgo.setFullYear(latestDate.getFullYear() - 1);
 
 const actual = historic.filter(d => d.date >= latestDate);
-
 const actualMean = +weightedMean(actual).toFixed(1);
-  
-const sortInput = Inputs.toggle({
-  label: "Ordenat per volum",
-  value: true,
-  width: 600
-})
-const sort = Generators.input(sortInput);
-
-const selectInput = Inputs.select(Object.values(embassamentsShortNames), {
-    label: "Selecciona un embassament"
-  })
-const select = Generators.input(selectInput);
 
 const table = Inputs.table(historic, {
   columns: ["name", "date", "pct", "level"],
@@ -112,6 +126,7 @@ const table = Inputs.table(historic, {
     level: "Volum embassat (hm³)"
   },
   format: {
+    date: x => dateFormat(x),
     pct: sparkbar(d3.max(historic, d => d.pct)),
     level: x => x.toLocaleString('es')
   },
@@ -122,11 +137,20 @@ const table = Inputs.table(historic, {
 
 ```
 # Estat dels embassaments de Catalunya
+## Dades actualitzades a ${dateFormat(latestDate)} per embassaments amb capacitat superior a 2hm³
+
+${
+  Plot.legend({color: {
+    domain: [16, 25, 40, 60],
+    range: ['#2f61e2', '#4f82de', '#70a3da', '#90c4d6', '#b1e5d1'],
+    type: "threshold",
+    label: "% volum embassat"
+  }})
+}
 
 <div class="grid grid-cols-4">
   <div class="card grid-colspan-2">
   <h2>Les reserves d'aigua als embassaments estàn al ${actualMean}%</h2>
-    <h3>Dades actualitzades a ${d3.timeFormat("%x")(latestDate)} per embassaments amb capacitat superior a 2hm³</h3>
     <figure class="grafic" style="max-width: none;">
       ${resize((width) =>
     Plot.plot({
@@ -134,13 +158,12 @@ const table = Inputs.table(historic, {
   height: 480,
   marginRight: width > 480 ? 120 : 0,
   x: { domain: [0, 100], label: "% volum embassat" },
-  y: { label: "Capacitat in hm³" },
+  y: { label: "Capacitat (en hm³)" },
   color: {
     domain: [16, 25, 40, 60],
     range: ['#2f61e2', '#4f82de', '#70a3da', '#90c4d6', '#b1e5d1'],
     type: "threshold",
-    label: "% volum embassat",
-    legend: true
+    label: "% volum embassat"
   },
   marks: [
     () => htl.svg`<defs>
@@ -242,8 +265,7 @@ const table = Inputs.table(historic, {
 
   </div>
   <div class="card grid-colspan-2" style="min-height: 480px">
-  <h2>Change in demand by balancing authority</h2>
-    <h3>Evolució de les reserves en l'últim any</h3>
+    <h2>Evolució de les reserves en l'últim any</h2>
     <figure class="grafic" style="max-width: none;">
 ${resize((width) =>
   Plot.plot({
@@ -255,8 +277,7 @@ ${resize((width) =>
     domain: [16, 25, 40, 60],
     range: ['#2f61e2', '#4f82de', '#70a3da', '#90c4d6', '#b1e5d1'],
     type: "threshold",
-    label: "% volum embassat",
-    legend: true
+    label: "% volum embassat"
   },
   style: "overflow: visible;",
   marks: [
@@ -334,8 +355,16 @@ ${resize((width) =>
 <div class="grid grid-cols-4">
   <div class="card grid-colspan-1">
   ${selectInput}
+
+  <h1 style="padding-top:1rem">${actual.find((d) => d.name === select).name}</h1>
+  <h3>Dades actualitzades a ${dateFormat(actual.find((d) => d.name === select).date)}</h3>
+
+  <p style="margin: 1rem 0 0 0; padding: 0"><b>Capacitat:</b> ${actual.find((d) => d.name === select).capacity.toFixed(2)}</p>
+  <p style="margin: .3rem 0 0 0; padding: 0"><b>Volum embassat:</b> ${actual.find((d) => d.name === select).level.toFixed(2)}</p>
+  <p style="margin: .3rem 0 0 0; padding: 0"><b>Percentatge:</b> ${actual.find((d) => d.name === select).pct.toFixed(2)}%</p>
   </div>
   <div class="card grid-colspan-3">
+  <h3><span class="legend daily"></span>Dades diàries <span class="legend monthly"></span>Mitjana mòbil mensual <span class="legend yearly"></span>Mitjana mòbil anual</h3>
   ${
     resize((width) =>
       Plot.plot({
@@ -399,4 +428,4 @@ ${resize((width) =>
 ${table}
 </div>
 
-<div class="small note">Aquest panell de dades reimagina la visualització de<a href="https://aca.gencat.cat/ca/laigua/consulta-de-dades/dades-obertes/visualitzacio-interactiva-dades/estat-embassaments/">l'Estat dels embassaments a Catalunya</a> de la Agència Catalana de l'Aigua, reutilitzant les <a href="https://analisi.transparenciacatalunya.cat/Medi-Ambient/Quantitat-d-aigua-als-embassaments-de-les-Conques-/gn9e-3qhr/about_data">dades obertes disponibles</a> al portal de Transparència.</div>
+<p class="notes">Aquest panell de dades reimagina la visualització de <a href="https://aca.gencat.cat/ca/laigua/consulta-de-dades/dades-obertes/visualitzacio-interactiva-dades/estat-embassaments/">l'Estat dels embassaments a Catalunya</a> de la Agència Catalana de l'Aigua, reutilitzant les <a href="https://analisi.transparenciacatalunya.cat/Medi-Ambient/Quantitat-d-aigua-als-embassaments-de-les-Conques-/gn9e-3qhr/about_data">dades obertes disponibles</a> al portal de Transparència.</p>
