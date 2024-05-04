@@ -27,10 +27,6 @@ export default {
     text-decoration: underline;
   }
   
-  #observablehq-header a[target="_blank"]::after {
-    content: "\\2197";
-  }
-  
   #observablehq-header a[target="_blank"]:not(:hover, :focus)::after {
     color: var(--theme-foreground-muted);
   }

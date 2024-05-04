@@ -10,7 +10,8 @@
   --semafor-taronja:#ef8733;
   --semafor-rosa:#f09793;
   --semafor-vermell:#b02418;
-  --theme-foreground: #222;
+  --theme-foreground: #000;
+  --theme-foreground-muted: #606060;
   --theme-background: #f2f2f2;
   --theme-background-alt: #fff;
   /* 
@@ -68,3 +69,23 @@ main h2 {
 .daily { border-top: 1.5px #BDBDBD solid; }
 .monthly { border-top: 3.2px #4f82de solid; }
 .yearly { border-top: 1.5px #000 dashed; }
+
+.halo {
+  -webkit-font-smoothing: antialiased;
+  text-shadow:
+  .5px .5px .5px #fff,
+  -.5px -.5px .5px #fff,  
+  .5px -.5px .5px #fff,
+  -.5px .5px .5px #fff,
+  .5px .5px .5px #fff,
+  .5px .5px 1px #fff,
+  -.5px -.5px 1px #fff,  
+  .5px -.5px 1px #fff,
+  -.5px .5px 1px #fff,
+  .5px .5px 1px #fff,
+  .5px .5px 3px #ffffff33,
+  -.5px -.5px 3px #ffffff33,  
+  .5px -.5px 3px #ffffff33,
+  -.5px .5px 3px #ffffff33,
+  .5px .5px 3px #ffffff33;
+}

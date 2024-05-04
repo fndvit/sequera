@@ -54,7 +54,7 @@ const sparkbar = (max) => {
     box-sizing: border-box;
     overflow: visible;
     display: flex;
-    justify-content: end;">${x.toLocaleString("es")}`
+    justify-content: end;"><span class="halo">${x.toLocaleString("es")}</span>`
 }
 
 const occlusionY = ({radius = 6.5, ...options} = {}) => Plot.initializer(options, (data, facets, { y: {value: Y}, text: {value: T} }, {y: sy}, dimensions, context) => {
@@ -84,11 +84,7 @@ const colorScale = d3.scaleThreshold()
 
 const dateFormat = d3.timeFormat("%x");
 
-const sortInput = Inputs.toggle({
-  label: "Ordenat per volum",
-  value: true,
-  width: 600
-})
+const sortInput = Inputs.radio(new Map([["% volum embassat", true], ["capacitat", false]]), {value: true, label: "Ordenar per:", format: ([name, value]) => `${name}`})
 const sort = Generators.input(sortInput);
 
 const selectInput = Inputs.select(Object.values(embassamentsShortNames), {
@@ -151,6 +147,7 @@ ${
 <div class="grid grid-cols-4">
   <div class="card grid-colspan-2">
   <h2>Les reserves d'aigua als embassaments estàn al ${actualMean}%</h2>
+  ${sortInput}
     <figure class="grafic" style="max-width: none;">
       ${resize((width) =>
     Plot.plot({
@@ -261,7 +258,6 @@ ${
 })
   )}
     </figure>
-    ${sortInput}
 
   </div>
   <div class="card grid-colspan-2" style="min-height: 480px">
@@ -270,7 +266,7 @@ ${
 ${resize((width) =>
   Plot.plot({
   width: width,
-  height: 480,
+  height: 500,
   marginRight: width > 480 ? 120 : 0,
   y: { grid: true, label: "% volum embassat" },
   color: {
