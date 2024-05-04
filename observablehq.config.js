@@ -10,15 +10,17 @@ export default {
   <noscript>
     <link rel="stylesheet" href="https://use.typekit.net/axi4iwz.css" />
   </noscript>
-  // <!-- Google tag (gtag.js) -->
-  // <script async src="https://www.googletagmanager.com/gtag/js?id=G-ME2V5KFL7T"></script>
-  // <script>
-  //   window.dataLayer = window.dataLayer || [];
-  //   function gtag(){dataLayer.push(arguments);}
-  //   gtag('js', new Date());
+  <!--
+  <!-- Google tag (gtag.js) 
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-ME2V5KFL7T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
 
-  //   gtag('config', 'G-ME2V5KFL7T');
-  // </script>
+    gtag('config', 'G-ME2V5KFL7T');
+  </script>
+  -->
   `,
   root: "src",
   style:"style.css",

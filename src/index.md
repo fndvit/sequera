@@ -78,9 +78,18 @@ const occlusionY = ({radius = 6.5, ...options} = {}) => Plot.initializer(options
   return {data, facets, channels: {y: {value: Y}}};
 });
 
+const colorDomain = [16, 25, 40, 60];
+const colorRange = ['#2f61e2', '#4f82de', '#70a3da', '#90c4d6', '#b1e5d1']
 const colorScale = d3.scaleThreshold()
-  .domain([16, 25, 40, 60])
-  .range(['#2f61e2', '#4f82de', '#70a3da', '#90c4d6', '#b1e5d1']);
+  .domain(colorDomain)
+  .range(colorRange);
+
+const colorPlot = {
+    domain: colorDomain,
+    range: colorRange,
+    type: "threshold",
+    label: "% volum embassat"
+  }
 
 const dateFormat = d3.timeFormat("%x");
 
@@ -156,12 +165,7 @@ ${
   marginRight: width > 480 ? 120 : 0,
   x: { domain: [0, 100], label: "% volum embassat" },
   y: { label: "Capacitat (en hm³)" },
-  color: {
-    domain: [16, 25, 40, 60],
-    range: ['#2f61e2', '#4f82de', '#70a3da', '#90c4d6', '#b1e5d1'],
-    type: "threshold",
-    label: "% volum embassat"
-  },
+  color: colorPlot,
   marks: [
     () => htl.svg`<defs>
       <pattern
@@ -269,12 +273,7 @@ ${resize((width) =>
   height: 500,
   marginRight: width > 480 ? 120 : 0,
   y: { grid: true, label: "% volum embassat" },
-  color: {
-    domain: [16, 25, 40, 60],
-    range: ['#2f61e2', '#4f82de', '#70a3da', '#90c4d6', '#b1e5d1'],
-    type: "threshold",
-    label: "% volum embassat"
-  },
+  color: colorPlot,
   style: "overflow: visible;",
   marks: [
     Plot.lineY(
@@ -367,11 +366,7 @@ ${resize((width) =>
   width: width,
   height: width > 480 ? width / 3 : width,
   y: { grid: true, label: "% volum embassat" },
-  color: {
-    domain: [16, 25, 40, 60],
-    range: ['#2f61e2', '#4f82de', '#70a3da', '#90c4d6', '#b1e5d1'],
-    type: "threshold"
-  },
+  color: colorPlot,
   style: "overflow: visible;",
   marks: [
     Plot.lineY(
