@@ -161,7 +161,7 @@ ${
       ${resize((width) =>
     Plot.plot({
   width,
-  height: 480,
+  height: width > 480 ? 480 : 360,
   marginRight: width > 480 ? 120 : 0,
   x: { domain: [0, 100], label: "% volum embassat" },
   y: { label: "Capacitat (en hm³)" },
@@ -270,7 +270,7 @@ ${
 ${resize((width) =>
   Plot.plot({
   width: width,
-  height: 500,
+  height: width > 480 ? 500 : 420,
   marginRight: width > 480 ? 120 : 0,
   y: { grid: true, label: "% volum embassat" },
   color: colorPlot,
@@ -347,8 +347,8 @@ ${resize((width) =>
 </div>
 </div>
 
-<div class="grid grid-cols-4">
-  <div class="card grid-colspan-1">
+<div class="card grid grid-cols-4">
+  <div class="grid-colspan-1" style="max-height:200px;">
   ${selectInput}
 
   <h1 style="padding-top:1rem">${actual.find((d) => d.name === select).name}</h1>
@@ -358,7 +358,7 @@ ${resize((width) =>
   <p style="margin: .3rem 0 0 0; padding: 0"><b>Volum embassat:</b> ${actual.find((d) => d.name === select).level.toFixed(2)}</p>
   <p style="margin: .3rem 0 0 0; padding: 0"><b>Percentatge:</b> ${actual.find((d) => d.name === select).pct.toFixed(2)}%</p>
   </div>
-  <div class="card grid-colspan-3">
+  <div class="grid-colspan-3">
   <h3><span class="legend daily"></span>Dades diàries <span class="legend monthly"></span>Mitjana mòbil mensual <span class="legend yearly"></span>Mitjana mòbil anual</h3>
   ${
     resize((width) =>

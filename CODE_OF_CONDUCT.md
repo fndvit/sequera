@@ -34,7 +34,7 @@ Aquest Codi de Conducta aplica tant en espais del projecte com en espais públic
 
 ## Aplicació
 
-Instàncies de comportament abusiu, assetjant, o d'altre manera inacceptable poden ser reportades contactant amb l'equip del projecte a [el vostre correu electrònic]. Totes les queixes seran revisades i investigades i resultaran en una resposta que es consideri necessària i adequada a les circumstàncies. L'equip del projecte està obligat a mantenir la confidencialitat respecte a l'informador d'un incident.
+Instàncies de comportament abusiu, assetjant, o d'altre manera inacceptable poden ser reportades contactant amb l'equip del projecte a info@fundaciovit.org. Totes les queixes seran revisades i investigades i resultaran en una resposta que es consideri necessària i adequada a les circumstàncies. L'equip del projecte està obligat a mantenir la confidencialitat respecte a l'informador d'un incident.
 
 ## Atribució
 
