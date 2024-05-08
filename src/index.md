@@ -142,7 +142,7 @@ const table = Inputs.table(historic, {
 
 ```
 # Estat dels embassaments de Catalunya
-## Dades actualitzades a ${dateFormat(latestDate)} per embassaments amb capacitat superior a 2hm³
+## Dades actualitzades a ${dateFormat(latestDate)} per embassaments amb capacitat superior a 2 hm³
 
 ${
   Plot.legend({color: {
@@ -155,7 +155,7 @@ ${
 
 <div class="grid grid-cols-4">
   <div class="card grid-colspan-2">
-  <h2>Les reserves d'aigua als embassaments estàn al ${actualMean}%</h2>
+  <h2>Les reserves d'aigua als embassaments estan al ${actualMean}%</h2>
   ${sortInput}
     <figure class="grafic" style="max-width: none;">
       ${resize((width) =>
@@ -207,7 +207,7 @@ ${
         fill: "pct",
         stroke: d => chroma(colorScale(d.pct)).darken(1).hex(),
         strokeWidth: .6,
-        title: (d) => `${d.name}\n${d.pct}%`,
+        title: (d) => `${d.name}\n${d.pct}%\n${d.level} hm³`,
         insetTop: 0.2,
         insetBottom: 0.2,
         tip: true
@@ -294,6 +294,7 @@ ${resize((width) =>
         z: "name",
         stroke: "pct",
         strokeWidth: 2,
+        title: d => `${d.name}\n${dateFormat(d.date)}\n${d.pct}% \n${d.level} hm³`,
         tip: true
       }
     ),
@@ -354,8 +355,8 @@ ${resize((width) =>
   <h1 style="padding-top:1rem">${actual.find((d) => d.name === select).name}</h1>
   <h3>Dades actualitzades a ${dateFormat(actual.find((d) => d.name === select).date)}</h3>
 
-  <p style="margin: 1rem 0 0 0; padding: 0"><b>Capacitat:</b> ${actual.find((d) => d.name === select).capacity.toFixed(2)}</p>
-  <p style="margin: .3rem 0 0 0; padding: 0"><b>Volum embassat:</b> ${actual.find((d) => d.name === select).level.toFixed(2)}</p>
+  <p style="margin: 1rem 0 0 0; padding: 0"><b>Capacitat:</b> ${actual.find((d) => d.name === select).capacity.toFixed(2)} hm³</p>
+  <p style="margin: .3rem 0 0 0; padding: 0"><b>Volum embassat:</b> ${actual.find((d) => d.name === select).level.toFixed(2)} hm³</p>
   <p style="margin: .3rem 0 0 0; padding: 0"><b>Percentatge:</b> ${actual.find((d) => d.name === select).pct.toFixed(2)}%</p>
   </div>
   <div class="grid-colspan-3">
@@ -406,6 +407,7 @@ ${resize((width) =>
         z: "name",
         strokeWidth: 2.4,
         stroke: "pct",
+        title: d => `${d.name}\n${dateFormat(d.date)}\n${d.pct}% \n${d.level} hm³`,
         tip: true
       })
     )
