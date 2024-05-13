@@ -133,7 +133,7 @@ const table = Inputs.table(historic, {
   format: {
     date: x => dateFormat(x),
     pct: sparkbar(d3.max(historic, d => d.pct)),
-    level: x => x.toLocaleString('es')
+    level: x => x.toLocaleString('ca-ES')
   },
   rows: 18,
   sort: "date",
@@ -155,7 +155,7 @@ ${
 
 <div class="grid grid-cols-4">
   <div class="card grid-colspan-2">
-  <h2>Les reserves d'aigua als embassaments estan al ${actualMean}%</h2>
+  <h2>Les reserves d'aigua als embassaments estan al ${actualMean.toLocaleString('ca-ES')}%</h2>
   ${sortInput}
     <figure class="grafic" style="max-width: none;">
       ${resize((width) =>
@@ -251,7 +251,7 @@ ${
       {
           y: 650,
           x: d => d,
-          text: d => `${d}%`,
+          text: d => `${d.toLocaleString('ca-ES')}%`,
           fontSize: 20,
           fontWeight: "bold",
           textAnchor: "middle",
@@ -294,7 +294,7 @@ ${resize((width) =>
         z: "name",
         stroke: "pct",
         strokeWidth: 2,
-        title: d => `${d.name}\n${dateFormat(d.date)}\n${d.pct}% \n${d.level} hm³`,
+        title: d => `${d.name}\n${dateFormat(d.date)}\n${d.pct.toLocaleString('ca-ES')}% \n${d.level.toLocaleString('ca-ES')} hm³`,
         tip: true
       }
     ),
@@ -355,9 +355,9 @@ ${resize((width) =>
   <h1 style="padding-top:1rem">${actual.find((d) => d.name === select).name}</h1>
   <h3>Dades actualitzades a ${dateFormat(actual.find((d) => d.name === select).date)}</h3>
 
-  <p style="margin: 1rem 0 0 0; padding: 0"><b>Capacitat:</b> ${actual.find((d) => d.name === select).capacity.toFixed(2)} hm³</p>
-  <p style="margin: .3rem 0 0 0; padding: 0"><b>Volum embassat:</b> ${actual.find((d) => d.name === select).level.toFixed(2)} hm³</p>
-  <p style="margin: .3rem 0 0 0; padding: 0"><b>Percentatge:</b> ${actual.find((d) => d.name === select).pct.toFixed(2)}%</p>
+  <p style="margin: 1rem 0 0 0; padding: 0"><b>Capacitat:</b> ${actual.find((d) => d.name === select).capacity.toLocaleString('ca-ES')} hm³</p>
+  <p style="margin: .3rem 0 0 0; padding: 0"><b>Volum embassat:</b> ${actual.find((d) => d.name === select).level.toLocaleString('ca-ES')} hm³</p>
+  <p style="margin: .3rem 0 0 0; padding: 0"><b>Percentatge:</b> ${actual.find((d) => d.name === select).pct.toLocaleString('ca-ES')}%</p>
   </div>
   <div class="grid-colspan-3">
   <h3><span class="legend daily"></span>Dades diàries <span class="legend monthly"></span>Mitjana mòbil mensual <span class="legend yearly"></span>Mitjana mòbil anual</h3>
@@ -407,7 +407,7 @@ ${resize((width) =>
         z: "name",
         strokeWidth: 2.4,
         stroke: "pct",
-        title: d => `${d.name}\n${dateFormat(d.date)}\n${d.pct}% \n${d.level} hm³`,
+        title: d => `${d.name}\n${dateFormat(d.date)}\n${d.pct.toLocaleString('ca-ES')}% \n${d.level.toLocaleString('ca-ES')} hm³`,
         tip: true
       })
     )
