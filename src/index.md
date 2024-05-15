@@ -91,7 +91,12 @@ const colorPlot = {
     label: "% volum embassat"
   }
 
-const dateFormat = d3.timeFormat("%x");
+const dateFormat = (date) => {
+  const month = date.getMonth();
+  const nexe = month === 3 || month === 7 || month === 9 ? "d'" : "de ";
+  return d3.timeFormat("%e ")(date)+nexe+d3.timeFormat("%B de %Y")(date);
+}
+//d3.timeFormat("%x");
 
 const sortInput = Inputs.radio(new Map([["% volum embassat", true], ["capacitat", false]]), {value: true, label: "Ordenar per:", format: ([name, value]) => `${name}`})
 const sort = Generators.input(sortInput);
@@ -207,7 +212,7 @@ ${
         fill: "pct",
         stroke: d => chroma(colorScale(d.pct)).darken(1).hex(),
         strokeWidth: .6,
-        title: (d) => `${d.name}\n${d.pct}%\n${d.level} hm³`,
+        title: (d) => `${d.name}\n${d.pct.toLocaleString('ca-ES')}%\n${d.level.toLocaleString('ca-ES')} hm³`,
         insetTop: 0.2,
         insetBottom: 0.2,
         tip: true
