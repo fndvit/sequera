@@ -7,8 +7,8 @@ toc: false
 import chroma from "chroma-js";
 
 const catalanLocale = {
-  dateTime: "%A, %e de %B de %Y, %X",
-  date: "%e de %B de %Y",
+  dateTime: "%A, %e %B %Y, %X",
+  date: "%e %B %Y",
   time: "%H:%M:%S",
   periods: ["AM", "PM"],
   days: ["diumenge", "dilluns", "dimarts", "dimecres", "dijous", "divendres", "dissabte"],
