@@ -4,11 +4,17 @@ toc: false
 ---
 
 ```js
+
+const dades = FileAttachment("data/dades.json").json();
+
+```
+
+```js
 import chroma from "chroma-js";
 
 const catalanLocale = {
   dateTime: "%A, %e %B %Y, %X",
-  date: "%e %B %Y",
+  date: `%e %B %Y`,
   time: "%H:%M:%S",
   periods: ["AM", "PM"],
   days: ["diumenge", "dilluns", "dimarts", "dimecres", "dijous", "divendres", "dissabte"],
@@ -101,19 +107,10 @@ const selectInput = Inputs.select(Object.values(embassamentsShortNames), {
   })
 const select = Generators.input(selectInput);
 
-const apiCall = await fetch(
-  "https://analisi.transparenciacatalunya.cat/resource/gn9e-3qhr.json?$limit=32877"
-).then((response) => response.json());
-
-const historic = apiCall.map((d) => {
-  const name = embassamentsShortNames[d.estaci];
-  const capacity = (100 * d.volum_embassat) / d.percentatge_volum_embassat;
-  const date = new Date(d.dia);
-  const pct = +d.percentatge_volum_embassat;
-  const level = +d.volum_embassat;
-  return { name, date, pct, level, capacity };
-}).sort( (a,b) => a.date - b.date);
-
+const historic = dades.map(d => {
+  d.date = new Date(d.date)
+  return d;
+})
 const historicDateSpan = [...new Set(historic.map(d => d.date))]
 const [startDate, latestDate] = d3.extent(historicDateSpan);
 const yearAgo = new Date();
