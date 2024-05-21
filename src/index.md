@@ -157,6 +157,8 @@ ${
     <figure class="grafic" style="max-width: none;">
       ${resize((width) =>
     Plot.plot({
+      ariaLabel: `Les reserves d'aigua als embassaments estan al ${actualMean.toLocaleString('ca-ES')}%`,
+  ariaDescription: "Gràfic de barres de l'estat actual de cada embassament, l'alçada de la barra indica la capacitat de cadascun, la longitud indica el nivell de l'aigua, emfatitzant la situació dels embassaments més grans, els més crítics.",
   width,
   height: width > 480 ? 480 : 360,
   marginRight: width > 480 ? 120 : 0,
@@ -266,6 +268,8 @@ ${
     <figure class="grafic" style="max-width: none;">
 ${resize((width) =>
   Plot.plot({
+  ariaLabel: "Evolució de les reserves en l'últim any",
+  ariaDescription: "Gràfic de línies dels nivells d'aigua de cadescú dels embassaments de les conques internes de Catalunya mostrant la tendència a curt termini, només des de l'últim any",
   width: width,
   height: width > 480 ? 500 : 420,
   marginRight: width > 480 ? 120 : 0,
@@ -361,6 +365,8 @@ ${resize((width) =>
   ${
     resize((width) =>
       Plot.plot({
+        ariaLabel: `Evolució de les reserves a ${select} en els últims cinc anys`,
+  ariaDescription: "Gràfic de línies dels nivells d'aigua de l'embassament mostrant la tendència a llarg termini, els últims cinc anys",
   width: width,
   height: width > 480 ? width / 3 : width,
   y: { grid: true, label: "% volum embassat" },
