@@ -90,6 +90,11 @@ const colorScale = d3.scaleThreshold()
   .domain(colorDomain)
   .range(colorRange);
 
+const darkenColorRange = colorRange.map( d => chroma(d).darken(1).hex());
+const darkenColorScale = d3.scaleThreshold()
+  .domain(colorDomain)
+  .range(darkenColorRange);
+
 const colorPlot = {
     domain: colorDomain,
     range: colorRange,
@@ -202,7 +207,7 @@ ${
         order: sort ? "pct" : "capacity",
         x2: "pct",
         fill: "pct",
-        stroke: d => chroma(colorScale(d.pct)).darken(1).hex(),
+        stroke: d => darkenColorScale(d.pct),
         strokeWidth: .6,
         title: (d) => `${d.name}\n${d.pct}%\n${d.level} hm³`,
         insetTop: 0.2,
@@ -279,7 +284,7 @@ ${resize((width) =>
         x: "date",
         y: "pct",
         z: "name",
-        stroke: d => chroma(colorScale(d.pct)).darken(1).hex(),
+        stroke: d => darkenColorScale(d.pct),
         strokeWidth: 3.6
       }
     ),
@@ -291,7 +296,7 @@ ${resize((width) =>
         z: "name",
         stroke: "pct",
         strokeWidth: 2,
-        title: d => `${d.name}\n${dateFormat(d.date)}\n${d.pct.toLocaleString('ca-ES')}% \n${d.level.toLocaleString('ca-ES')} hm³`,
+        title: d => d.pct !== null ? `${d.name}\n${dateFormat(d.date)}\n${d.pct.toLocaleString('ca-ES')}\n${d.level.toLocaleString('ca-ES')} hm³` : "",
         tip: true
       }
     ),
@@ -304,7 +309,7 @@ ${resize((width) =>
         z: "name",
         fill: "pct",
         stroke: "none",
-        stroke: d => chroma(colorScale(d.pct)).darken(1).hex(),
+        stroke: d => darkenColorScale(d.pct),
         strokeWidth: .8,
       })
     ),
@@ -393,7 +398,7 @@ ${resize((width) =>
         y: "pct",
         z: "name",
         strokeWidth: 3.6,
-        stroke: d => chroma(colorScale(d.pct)).darken(1).hex(),
+        stroke: d => darkenColorScale(d.pct),
       })
     ),
     Plot.lineY(
