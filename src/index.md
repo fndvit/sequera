@@ -409,7 +409,7 @@ ${resize((width) =>
         z: "name",
         strokeWidth: 2.4,
         stroke: "pct",
-        title: d => `${d.name}\n${dateFormat(d.date)}\n${d.pct.toLocaleString('ca-ES')}% \n${d.level.toLocaleString('ca-ES')} hm³`,
+        title: d => d.pct !== null ?  `${d.name}\n${dateFormat(d.date)}\n${d.pct.toLocaleString('ca-ES')}% \n${d.level.toLocaleString('ca-ES')} hm³` : "",
         tip: true
       })
     )
